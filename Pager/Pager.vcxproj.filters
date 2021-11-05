@@ -27,7 +27,7 @@
     <ClInclude Include="Pager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Column.h">
+    <ClInclude Include="Create.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Frame.h">

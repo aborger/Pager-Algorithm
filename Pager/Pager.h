@@ -4,8 +4,13 @@
 #include "OSAPI.h"
 #include <string>
 
+// The outer list represents a process while the inner list represents each page in the process
 typedef std::vector<std::vector<MemBlock<int>>> MemoryBank;
 
+// AddValToList appends strings and values to a list. The value can be in the following formats:
+// String
+// String, val
+// String1, val1, String2, val2
 void AddValToList(HWND hWnd, int listID, std::string str, int val)
 {
     std::string label_str = str + " " + std::to_string(val);
@@ -27,7 +32,7 @@ void AddValToList(HWND hWnd, int listID, std::string str)
     SendMessageA(GetDlgItem(hWnd, listID), LB_ADDSTRING, 0, (LPARAM)proc_txt);
 }
 
-
+// Refreshes Corresponding Page list
 void UpdateFramePages(HWND hWnd, int listBoxID, OSAPI* os)
 {
     int numPagesToDelete = SendMessage(GetDlgItem(hWnd, listBoxID), LB_GETCOUNT, 0, 0);
@@ -51,9 +56,15 @@ void UpdateFramePages(HWND hWnd, int listBoxID, OSAPI* os)
     }
 }
 
+
+
+
+
+
 template <typename Type>
 MemBlock<Type> GetSelectedMemBlock(HWND hWnd, MemoryBank mainMemory, int process_listBoxID, int page_listBoxID)
 {
+    // Need to catch error that occurs if a page is not selected
     HWND procList = GetDlgItem(hWnd, process_listBoxID);
     HWND pageList = GetDlgItem(hWnd, page_listBoxID);
     int processID = (int)SendMessage(procList, LB_GETCURSEL, 0, 0);

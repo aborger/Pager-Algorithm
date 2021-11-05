@@ -123,5 +123,13 @@ void PageAlgo::deallocate(LogicAddress address)
 }
 
 
-
-PageAlgo::~PageAlgo() {}
+// Deletes pages stored to disk
+PageAlgo::~PageAlgo()
+{
+	/*
+	for (const auto& file : std::experimental::filesystem::directory_iterator("Saved_Frames/"))
+	{
+		remove(file.path());
+	}
+	*/
+}

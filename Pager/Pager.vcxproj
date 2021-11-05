@@ -141,7 +141,7 @@
   <ItemGroup>
     <ClInclude Include="Frame.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="Column.h" />
+    <ClInclude Include="Create.h" />
     <ClInclude Include="MemBlock.h" />
     <ClInclude Include="OSAPI.h" />
     <ClInclude Include="PageAlgo.h" />

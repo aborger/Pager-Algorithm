@@ -1,14 +1,23 @@
-// Pager.cpp : Defines the entry point for the application.
-//
+/*
+
+* Pager.cpp: The entry point for the application.
+
+* This file is responsible for the application's GUI
+
+* Author: Aaron Borger 
+
+*/
 
 #include "framework.h"
 #include "Pager.h"
 #include "Windowsx.h"
-#include "Column.h"
+#include "Create.h"
 #include <string>
 
 #define MAX_LOADSTRING 100
 
+
+// The following lines define the IDs for GUI elements
 #define BTN_OK              201
 #define BTN_ADD             202
 #define BTN_SET_MEMVAL      211
@@ -33,17 +42,15 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-int btn_w = 75;
-int btn_h = 40;
 
 int num_processes = 0;
 
 OSAPI os(10);
 
-
-
 MemoryBank mainMemory;
 
+
+// Creates window
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -82,7 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 }
 
 
-
+// Window Settings
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
     WNDCLASSEXW wcex;
@@ -104,10 +111,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
-
+// Initializes window and its elements
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Store instance handle in our global variable
+   // Store instance handle in our global variable
+   hInst = hInstance;
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, 
       WS_OVERLAPPEDWINDOW,
@@ -122,7 +130,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    GetWindowRect(hWnd, &rect);
 
 
-    
+   // 
    CreateButton(hWnd, L"Ok", BTN_OK, 1300, 625);
 
    CreateButton(hWnd, L"Add", BTN_ADD, 1200, 625);
@@ -133,14 +141,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        hWnd,
        TEXT("Process Size"),
        COLUMN_TEXT, PROCESS_SIZE_EDITOR,
-       1100, 605, 100, btn_h
+       1100, 605, 100, BUTTON_HEIGHT
    );
 
    CreateNumControl(
        hWnd,
        TEXT("Memory Value"),
        COLUMN_TEXT, PAGEVALUE_EDITOR,
-       600, 220, 100, btn_h
+       600, 220, 100, BUTTON_HEIGHT
    );
    
    CreateColumn(
@@ -195,23 +203,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE: Processes messages for the main window.
-//
-//  WM_COMMAND  - process the application menu
-//  WM_PAINT    - Paint the main window
-//  WM_DESTROY  - post a quit message and return
-//
-//
 
-
+// This function is called anytime an event occurs in the GUI.
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 
     switch (message)
     {
+    // Window Started Up
     case WM_INITDIALOG:
     {
         // Set default push button to "OK" by default
@@ -220,6 +219,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                    (LPARAM)0);
         return TRUE;
     }
+    // An element was clicked
     case WM_COMMAND:
     {
         // Whenever updated update frames page list
@@ -248,7 +248,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case BTN_ADD:
         {
             int processID = num_processes;
-            UpdateFramePages(hWnd, FRAMEPAGE_LISTBOX, &os);
+            
             // Create new process string for List Box
             BOOL success = false;
             int processSize = GetDlgItemInt(hWnd, PROCESS_SIZE_EDITOR, &success, false);
@@ -266,7 +266,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             mainMemory.push_back(pageMemory);
 
 
-            AddValToList(hWnd, PROCESS_LISTBOX, "Process", num_processes);
+            AddValToList(hWnd, PROCESS_LISTBOX, "Process", processID);
+            UpdateFramePages(hWnd, FRAMEPAGE_LISTBOX, &os);
             num_processes++;
             break;
         }
@@ -294,6 +295,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     std::string label_str = std::to_string(*memory);
                     LPCSTR proc_txt = const_cast<char*>(label_str.c_str());
                     SetWindowTextA(GetDlgItem(hWnd, PAGEVALUE_EDITOR), proc_txt);
+
+                    // Update Page Frames
+                    int numFrames = SendMessage(GetDlgItem(hWnd, PAGEFRAME_LISTBOX), LB_GETCOUNT, 0, 0);
+                    for (int i = 0; i < numFrames; i++)
+                    {
+                        SendMessageA(GetDlgItem(hWnd, PAGEFRAME_LISTBOX), LB_DELETESTRING, 0, 0);
+                    }
+
+                    HWND procList = GetDlgItem(hWnd, PROCESS_LISTBOX);
+                    int processID = (int)SendMessage(procList, LB_GETCURSEL, 0, 0);
+
+                    for (int i = 0; i < numFrames; i++)
+                    {
+                        AddValToList(hWnd, PAGEFRAME_LISTBOX, "Frame", os.getPageFrameID(processID, i));
+                    }
                     break;
                     
                 }
@@ -341,6 +357,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
     /*
+    Was used to readjust the window if resized, but I ran out of time to make it really work so just don't resize it.
     case WM_SIZE:
         btn = GetWindow(hWnd, 5);
         MoveWindow(btn, rect.right - btn_dist, rect.bottom - btn_dist, btn_w, btn_h, true);
@@ -351,12 +368,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
 
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
+        // Delete all saved frames
         PostQuitMessage(0);
         break;
     default:

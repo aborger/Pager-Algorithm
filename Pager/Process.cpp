@@ -35,7 +35,7 @@ int Process::getPageFrame(int pageID)
 
 void Process::savePageToDisk(int pageID)
 {
-	// shows that it does not have a deticated frame because it is on the disk
+	// shows that it does not have a dedicated frame because it is on the disk
 	pageTable[pageID] = -1;
 }
 

@@ -48,6 +48,14 @@ public:
 		{
 			frameID = freeFrame();
 			frames[frameID].allocateProcess(process, address.pageNumber);
+			process->openPageFromDisk(address.pageNumber, frameID);
+
+			// Free disk space
+			std::string file_name = "Saved_Frames/Frame_proc" + std::to_string(process->processID) + "_page" + std::to_string(address.pageNumber) + ".txt";
+			if (remove(file_name.c_str()) != 0)
+			{
+				throw 1; // error deleting file
+			}
 
 		}
 
@@ -66,7 +74,7 @@ public:
 		{
 			// if frame is in disk retrieve it
 			frameID = freeFrame();
-			frames[frameID].allocateProcess(process, address.pageOffset);
+			frames[frameID].allocateProcess(process, address.pageNumber);
 
 			// Get value from disk
 			std::string fileLine;
@@ -104,7 +112,7 @@ public:
 	{
 		LogicAddress address;
 		address.pageOffset = 0; // Page offsets are currently not being used
-		// Check for a free page
+		// Check for a free frame
 		for (int i = 0; i < process->processSize(); i++)
 		{
 			int frameID = process->getPageFrame(i);
@@ -122,6 +130,7 @@ public:
 			else {
 				// just give it a pageNumber, but dont allocate it because the memory is in disk
 				address.pageNumber = i;
+				break;
 			}
 		}
 
@@ -154,6 +163,7 @@ private:
 		return frameToSave;
 	}
 
+	// Moves frame that was used to the back of the usage list to ensure it stays in memory
 	void refreshFrame(int frameID)
 	{
 		while (true)
