@@ -7,10 +7,10 @@ template <class Type>
 class MemBlock
 {
 public:
-	MemBlock<Type>(PageAlgo* _PageAlgo, Process* _process) {
+	MemBlock<Type>(PageAlgo* _PageAlgo, Process* _process, int pageNumber) {
 		PageAlgo = _PageAlgo;
 		process = _process;
-		address = PageAlgo->allocate<Type>(process);
+		address = PageAlgo->allocate<Type>(process, pageNumber);
 	}
 	~MemBlock<Type>() {
 		PageAlgo->deallocate(address);

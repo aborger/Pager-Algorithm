@@ -20,10 +20,10 @@ public:
 
 	// This function is why osapi is seperate from pageAlgo
 	template <typename Type>
-	MemBlock<Type> allocate(int processID)
+	MemBlock<Type> allocate(int processID, int pageNumber)
 	{
 		Process* process = pageAlgo->getProcess(processID);
-		MemBlock<Type> mem(pageAlgo, process);
+		MemBlock<Type> mem(pageAlgo, process, pageNumber);
 		return mem;
 	}
 

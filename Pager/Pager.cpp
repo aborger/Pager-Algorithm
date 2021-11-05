@@ -259,7 +259,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             std::vector<MemBlock<int>> pageMemory;
             for (int i = 0; i < processSize; i++)
             {
-                MemBlock<int> temp = os.allocate<int>(processID);
+                MemBlock<int> temp = os.allocate<int>(processID, i);
                 temp = 0;
                 pageMemory.push_back(temp);
             }

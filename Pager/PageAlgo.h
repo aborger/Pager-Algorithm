@@ -108,31 +108,26 @@ public:
 	}
 
 	template <typename Type>
-	LogicAddress allocate(Process* process)
+	LogicAddress allocate(Process* process, int pageNumber)
 	{
 		LogicAddress address;
 		address.pageOffset = 0; // Page offsets are currently not being used
-		// Check for a free frame
-		for (int i = 0; i < process->processSize(); i++)
-		{
-			int frameID = process->getPageFrame(i);
-			if (frameID != -1)
-			{
+		address.pageNumber = pageNumber;
 
-				refreshFrame(frameID);
-				if (!frames[frameID].isFull())
-				{
-					frames[frameID].fillBlock<Type>();
-					address.pageNumber = i;
-					break;
-				}
+
+		// Allocate
+		int frameID = process->getPageFrame(pageNumber);
+		if (frameID != -1)
+		{
+
+			refreshFrame(frameID);
+			if (!frames[frameID].isFull())
+			{
+				frames[frameID].fillBlock<Type>();
 			}
-			else {
-				// just give it a pageNumber, but dont allocate it because the memory is in disk
-				address.pageNumber = i;
-				break;
-			}
+
 		}
+
 
 
 		return address;
